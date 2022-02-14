@@ -17,7 +17,7 @@ shinyWidgetsGallery()
 
 
 ```{r}
-install.packages("shinydadshboard")
+install.packages("shinythemes")
 ```
 
 
