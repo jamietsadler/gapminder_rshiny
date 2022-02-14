@@ -12,6 +12,16 @@ usa_ufo_sightings <- read.csv("usa_ufo_sightings.csv")
 ```
 
 ```{r}
+shinyWidgetsGallery()
+```
+
+
+```{r}
+install.packages("shinydadshboard")
+```
+
+
+```{r}
 head(usa_ufo_sightings)
 ```
 

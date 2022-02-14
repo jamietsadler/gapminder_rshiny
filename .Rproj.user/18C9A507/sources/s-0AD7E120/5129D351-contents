@@ -2,19 +2,48 @@ library(shiny)
 library(dplyr)
 library(ggplot2)
 
+library(shinyWidgets)
+
+
+
 usa_ufo_sightings <- read.csv("usa_ufo_sightings.csv")
+
+shinyWidgetsGallery()
+
+ui <- fluidPage(
+  titlePanel("UFO Sightings"),
+  sidebarPanel(
+    selectInput("state", "Choose a U.S. state:", choices = unique(usa_ufo_sightings$state)),
+    dateRangeInput("dates", "Choose a date range:",
+                   start = "1920-01-01",
+                   end = "1950-01-01"
+    )
+  ),
+
+  mainPanel(
+    tabsetPanel(
+      tabPanel("Number sighted", plotOutput("shapes")),
+      tabPanel("Duration table", tableOutput("duration_table"))
+    )
+  )
+)
 
 server <- function(input, output) {
   output$shapes <- renderPlot({
     usa_ufo_sightings %>%
-      filter(state == input$state,
-             date_sighted >= input$dates[1],
-             date_sighted <= input$dates[2]) %>%
+      filter(
+        state == input$state,
+        date_sighted >= input$dates[1],
+        date_sighted <= input$dates[2]
+      ) %>%
       ggplot(aes(shape)) +
       geom_bar() +
-      labs(x = "Shape", y = "# Sighted")
+      labs(
+        x = "Shape",
+        y = "# Sighted"
+      )
   })
-
+  
   output$duration_table <- renderTable({
     usa_ufo_sightings %>%
       filter(
@@ -25,28 +54,12 @@ server <- function(input, output) {
       group_by(shape) %>%
       summarize(
         nb_sighted = n(),
-        avg_duration = mean(duration_sec),
-        median_duration = median(duration_sec),
-        min_duration = min(duration_sec),
-        max_duration = max(duration_sec)
+        avg_duration_min = mean(duration_sec) / 60,
+        median_duration_min = median(duration_sec) / 60,
+        min_duration_min = min(duration_sec) / 60,
+        max_duration_min = max(duration_sec) / 60
       )
   })
 }
-
-ui <- fluidPage(
-  titlePanel("UFO Sightings"),
-  sidebarLayout(
-    sidebarPanel(
-      selectInput("state", "Choose a U.S. state:", choices = unique(usa_ufo_sightings$state)),
-      dateRangeInput("dates", "Choose a date range:",
-                     start = "1920-01-01",
-                     end = "1950-01-01")
-    ),
-    mainPanel(
-      plotOutput("shapes"),
-      tableOutput("duration_table")
-    )
-  )
-)
-
+shinyWidgetsGallery()
 shinyApp(ui, server)
